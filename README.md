@@ -25,7 +25,7 @@ This is a template for building backend applications using **Node.js**, **Expres
 - **JWT**
 - **NodeMailer**
 - **Multer**
-- **Bull**
+- **Logger**
 - **Stripe**
 - **Winston**
 - **dotenv**

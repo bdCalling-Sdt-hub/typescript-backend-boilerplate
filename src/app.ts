@@ -6,6 +6,8 @@ import globalErrorHandler from './middlewares/globalErrorHandler';
 import notFound from './middlewares/notFount';
 import router from './routes';
 import { Morgan } from './shared/morgen';
+import i18next from './i18n/i18n'; // Import the i18next configuration
+import i18nextMiddleware from 'i18next-express-middleware';
 
 const app = express();
 
@@ -31,14 +33,29 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // file retrieve
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads/')));
+
+// Use i18next middleware
+app.use(i18nextMiddleware.handle(i18next));
 
 // router
 app.use('/api/v1', router);
 
 // live response
 app.get('/test', (req: Request, res: Response) => {
-  res.status(201).json({ message: 'Dating web server is running' });
+  res.status(201).json({ message: req.t('welcome') });
+});
+
+app.get('/test/:lang', (req: Request, res: Response) => {
+  const { lang } = req.params;
+
+  // Change the language dynamically for the current request
+  i18next.changeLanguage(lang); // Switch language
+
+  console.log(`Current language: ${i18next.language}`); // Log the current language
+
+  // Send the translated response
+  res.status(200).json({ message: req.t('welcome') }); // Get translated 'welcome' message
 });
 
 // global error handle
