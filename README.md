@@ -73,6 +73,7 @@ Ensure you have the following installed:
 
 In the root directory of the project, create a `.env` file and add the following variables. Adjust the values according to your setup.
 
+```env
 # Database Configuration
 
 MONGODB_URL=your_mongodb_url
@@ -126,8 +127,7 @@ BACKEND_IP=YOUR_BACKEND_IP
 
 STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET=YOUR_STRIPE_WEBHOOK_SECRET
-
-````
+```
 
 4. **Run the project:**
 
@@ -135,7 +135,7 @@ Using npm:
 
 ```bash
 npm run dev
-````
+```
 
 Using yarn:
 
