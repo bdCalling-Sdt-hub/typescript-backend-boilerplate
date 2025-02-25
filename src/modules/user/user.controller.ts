@@ -26,7 +26,7 @@ const getAllUsers = catchAsync(async (req, res) => {
   const limit = parseInt(req.query.limit as string) || 10;
   const skip = (page - 1) * limit;
 
-  console.log(currentUserId)
+  console.log(currentUserId);
   // Aggregation pipeline to fetch users with connection status
   const aggregationPipeline = [
     {

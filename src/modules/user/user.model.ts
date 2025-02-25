@@ -13,17 +13,19 @@ const profileImageSchema = new Schema<TProfileImage>({
     required: [true, 'Image url is required'],
     default: '/uploads/users/user.png',
   },
-  file: {
-    type: Object,
-  },
 });
 
 // User Schema Definition
 const userSchema = new Schema<TUser, UserModal>(
   {
-    fullName: {
+    fname: {
       type: String,
-      required: [true, 'Full name is required'],
+      required: [true, 'First name is required'],
+      trim: true,
+    },
+    lname: {
+      type: String,
+      required: [true, 'Last name is required'],
       trim: true,
     },
     email: {
@@ -51,15 +53,11 @@ const userSchema = new Schema<TUser, UserModal>(
       type: [profileImageSchema],
       required: false,
     },
-    status: {
-      type: String,
-      enum: UserStatus,
-      default: 'active',
-    },
-    location: {
-      latitude: { type: Number, required: true },
-      longitude: { type: Number, required: true },
-    },
+
+    // location: {
+    //   latitude: { type: Number, required: true },
+    //   longitude: { type: Number, required: true },
+    // },
     gender: {
       type: String,
       enum: {
@@ -68,29 +66,10 @@ const userSchema = new Schema<TUser, UserModal>(
       },
       required: [true, 'Gender is required'],
     },
-    dateOfBirth: {
-      type: Date,
-      required: [true, 'Date of Birth is required'],
-    },
-    continent: { type: String },
-    country: { type: String },
-    state: { type: String },
+
     city: { type: String },
     address: { type: String },
-    ethnicity: { type: String },
-    denomination: { type: String },
-    education: { type: String },
-    maritalStatus: {
-      type: String,
-      enum: {
-        values: MaritalStatus,
-        message: '{VALUE} is not a valid marital status',
-      },
-      required: [true, 'Marital status is required'],
-    },
-    hobby: { type: String },
-    occupation: { type: String },
-    interests: { type: [String] },
+
     aboutMe: { type: String },
     role: {
       type: String,
@@ -99,24 +78,17 @@ const userSchema = new Schema<TUser, UserModal>(
         message: '{VALUE} is not a valid role',
       },
       required: [true, 'Role is required'],
-      default: 'user',
     },
     isEmailVerified: {
       type: Boolean,
       default: false,
     },
-    isOnline: {
-      type: Boolean,
-      default: false,
-    },
+
     isDeleted: {
       type: Boolean,
       default: false,
     },
-    isBlocked: {
-      type: Boolean,
-      default: false,
-    },
+
     lastPasswordChange: { type: Date },
     isResetPassword: {
       type: Boolean,
@@ -132,25 +104,8 @@ const userSchema = new Schema<TUser, UserModal>(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
-
-// Virtual for calculating the user's age based on their dateOfBirth
-userSchema.virtual('age').get(function (this: TUser) {
-  const ageDifMs = Date.now() - this.dateOfBirth.getTime();
-  const ageDate = new Date(ageDifMs);
-  return Math.abs(ageDate.getUTCFullYear() - 1970);
-});
-
-// Pre-save hook to calculate and set the age field when saving the user
-userSchema.pre('save', function (next) {
-  if (this.dateOfBirth) {
-    const ageDifMs = Date.now() - this.dateOfBirth.getTime();
-    const ageDate = new Date(ageDifMs);
-    this.age = Math.abs(ageDate.getUTCFullYear() - 1970);
-  }
-  next();
-});
 
 // Apply the paginate plugin
 userSchema.plugin(paginate);
@@ -166,7 +121,7 @@ userSchema.statics.isExistUserByEmail = async function (email: string) {
 
 userSchema.statics.isMatchPassword = async function (
   password: string,
-  hashPassword: string
+  hashPassword: string,
 ): Promise<boolean> {
   return await bcrypt.compare(password, hashPassword);
 };
@@ -176,7 +131,7 @@ userSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(
       this.password,
-      Number(config.bcrypt.saltRounds)
+      Number(config.bcrypt.saltRounds),
     );
   }
   next();

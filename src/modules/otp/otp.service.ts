@@ -16,7 +16,7 @@ const generateOTP = (): string => {
 const createOTP = async (
   userEmail: string,
   expiresInMinutes: string,
-  type: string
+  type: string,
 ) => {
   const existingOTP = await OTP.findOne({
     userEmail,
@@ -35,7 +35,7 @@ const createOTP = async (
     ) {
       throw new ApiError(
         StatusCodes.TOO_MANY_REQUESTS,
-        `Too many attempts. Please try again after ${config.otp.attemptWindowMinutes} minutes`
+        `Too many attempts. Please try again after ${config.otp.attemptWindowMinutes} minutes`,
       );
     }
   }
@@ -57,7 +57,6 @@ const verifyOTP = async (userEmail: string, otp: string, type: string) => {
     verified: false,
   });
 
-
   if (!otpDoc || otpDoc.expiresAt < new Date()) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'OTP not found or expired');
   }
@@ -67,7 +66,7 @@ const verifyOTP = async (userEmail: string, otp: string, type: string) => {
     await otpDoc.save();
     throw new ApiError(
       StatusCodes.TOO_MANY_REQUESTS,
-      `Too many attempts. Please try again after ${config.otp.attemptWindowMinutes} minutes`
+      `Too many attempts. Please try again after ${config.otp.attemptWindowMinutes} minutes`,
     );
   }
   if (otpDoc.otp !== otp) {
@@ -83,7 +82,7 @@ const createVerificationEmailOtp = async (email: string) => {
   const otpDoc = await createOTP(
     email,
     config.otp.verifyEmailOtpExpiration.toString(),
-    'verify'
+    'verify',
   );
   await sendVerificationEmail(email, otpDoc.otp);
   return otpDoc;
@@ -93,7 +92,7 @@ const createResetPasswordOtp = async (email: string) => {
   const otpDoc = await createOTP(
     email,
     config.otp.resetPasswordOtpExpiration.toString(),
-    'resetPassword'
+    'resetPassword',
   );
   await sendResetPasswordEmail(email, otpDoc.otp);
   return otpDoc;

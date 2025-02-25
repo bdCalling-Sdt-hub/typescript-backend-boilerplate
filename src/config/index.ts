@@ -38,10 +38,10 @@ export const config = {
 
   otp: {
     verifyEmailOtpExpiration: parseInt(
-      process.env.VERIFY_EMAIL_OTP_EXPIRATION_TIME || '10'
+      process.env.VERIFY_EMAIL_OTP_EXPIRATION_TIME || '10',
     ),
     resetPasswordOtpExpiration: parseInt(
-      process.env.RESET_PASSWORD_OTP_EXPIRATION_TIME || '5'
+      process.env.RESET_PASSWORD_OTP_EXPIRATION_TIME || '5',
     ),
     maxOtpAttempts: parseInt(process.env.MAX_OTP_ATTEMPTS || '5'),
     attemptWindowMinutes: parseInt(process.env.ATTEMPT_WINDOW_MINUTES || '10'),

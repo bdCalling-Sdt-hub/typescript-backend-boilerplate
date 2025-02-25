@@ -32,6 +32,7 @@ const login = catchAsync(async (req, res) => {
 });
 
 const verifyEmail = catchAsync(async (req, res) => {
+  console.log(req.body);
   const { email, token, otp } = req.body;
   const result = await AuthService.verifyEmail(email, token, otp);
   sendResponse(res, {
@@ -67,7 +68,7 @@ const changePassword = catchAsync(async (req, res) => {
   const result = await AuthService.changePassword(
     userId,
     currentPassword,
-    newPassword
+    newPassword,
   );
   sendResponse(res, {
     code: StatusCodes.OK,
@@ -76,8 +77,8 @@ const changePassword = catchAsync(async (req, res) => {
   });
 });
 const resetPassword = catchAsync(async (req, res) => {
-  const { email, password } = req.body;
-  const result = await AuthService.resetPassword(email, password);
+  const { email, password, otp } = req.body;
+  const result = await AuthService.resetPassword(email, password, otp);
   sendResponse(res, {
     code: StatusCodes.OK,
     message: 'Password reset successfully',

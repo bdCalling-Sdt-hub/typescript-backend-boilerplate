@@ -14,11 +14,11 @@ const validateUserStatus = (user: TUser) => {
   if (user.isDeleted) {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
-      'Your account has been deleted. Please contact support'
+      'Your account has been deleted. Please contact support',
     );
   }
 };
-const createUser = async (userData: any) => {
+const createUser = async (userData: TUser) => {
   const existingUser = await User.findOne({ email: userData.email });
   if (existingUser) {
     if (existingUser.isEmailVerified) {
@@ -27,9 +27,8 @@ const createUser = async (userData: any) => {
       await User.findOneAndUpdate({ email: userData.email }, userData);
 
       //create verification email token
-      const verificationToken = await TokenService.createVerifyEmailToken(
-        existingUser
-      );
+      const verificationToken =
+        await TokenService.createVerifyEmailToken(existingUser);
       //create verification email otp
       await OtpService.createVerificationEmailOtp(existingUser.email);
       return { verificationToken };
@@ -44,7 +43,7 @@ const createUser = async (userData: any) => {
   return { verificationToken };
 };
 
-const login = async (email: string, password: string) => {
+const login = async (email: string, reqpassword: string) => {
   const user = await User.findOne({ email }).select('+password');
   if (!user) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid credentials');
@@ -68,11 +67,11 @@ const login = async (email: string, password: string) => {
   if (user.lockUntil && user.lockUntil > new Date()) {
     throw new ApiError(
       StatusCodes.TOO_MANY_REQUESTS,
-      `Account is locked. Try again after ${config.auth.lockTime} minutes`
+      `Account is locked. Try again after ${config.auth.lockTime} minutes`,
     );
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(reqpassword, user.password);
   if (!isPasswordValid) {
     user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
     if (user.failedLoginAttempts >= config.auth.maxLoginAttempts) {
@@ -80,7 +79,7 @@ const login = async (email: string, password: string) => {
       await user.save();
       throw new ApiError(
         423,
-        `Account locked for ${config.auth.lockTime} minutes due to too many failed attempts`
+        `Account locked for ${config.auth.lockTime} minutes due to too many failed attempts`,
       );
     }
     await user.save();
@@ -94,8 +93,9 @@ const login = async (email: string, password: string) => {
   }
 
   const tokens = await TokenService.accessAndRefreshToken(user);
+  const { password, ...userWithoutPassword } = user.toObject();
   return {
-    user,
+    userWithoutPassword,
     tokens,
   };
 };
@@ -109,14 +109,14 @@ const verifyEmail = async (email: string, token: string, otp: string) => {
   await TokenService.verifyToken(
     token,
     config.token.TokenSecret,
-    user?.isResetPassword ? TokenType.RESET_PASSWORD : TokenType.VERIFY
+    user?.isResetPassword ? TokenType.RESET_PASSWORD : TokenType.VERIFY,
   );
 
   //verify otp
   await OtpService.verifyOTP(
     user.email,
     otp,
-    user?.isResetPassword ? OtpType.RESET_PASSWORD : OtpType.VERIFY
+    user?.isResetPassword ? OtpType.RESET_PASSWORD : OtpType.VERIFY,
   );
 
   user.isEmailVerified = true;
@@ -146,9 +146,8 @@ const resendOtp = async (email: string) => {
   }
 
   if (user?.isResetPassword) {
-    const resetPasswordToken = await TokenService.createResetPasswordToken(
-      user
-    );
+    const resetPasswordToken =
+      await TokenService.createResetPasswordToken(user);
     await OtpService.createResetPasswordOtp(user.email);
     return { resetPasswordToken };
   }
@@ -157,18 +156,32 @@ const resendOtp = async (email: string) => {
   return { verificationToken };
 };
 
-const resetPassword = async (email: string, password: string) => {
+const resetPassword = async (
+  email: string,
+  newPassword: string,
+  otp: string,
+) => {
   const user = await User.findOne({ email });
   if (!user) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
   }
-  user.password = password;
+  await OtpService.verifyOTP(
+    user.email,
+    otp,
+    user?.isResetPassword ? OtpType.RESET_PASSWORD : OtpType.VERIFY,
+  );
+  user.password = newPassword;
   user.isResetPassword = false;
   await user.save();
-  return user;
+  const { password, ...userWithoutPassword } = user.toObject();
+  return userWithoutPassword;
 };
 
-const changePassword = async (userId: string, currentPassword: string, newPassword: string) => {
+const changePassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string,
+) => {
   const user = await User.findById(userId).select('+password');
   if (!user) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
@@ -182,8 +195,8 @@ const changePassword = async (userId: string, currentPassword: string, newPasswo
 
   user.password = newPassword;
   await user.save();
-
-  return user;
+  const { password, ...userWithoutPassword } = user.toObject();
+  return userWithoutPassword;
 };
 const logout = async (refreshToken: string) => {};
 

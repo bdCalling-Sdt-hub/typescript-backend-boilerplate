@@ -30,7 +30,7 @@ const verifyEmailValidationSchema = z.object({
         required_error: 'One time code is required.',
         invalid_type_error: 'One time code must be a string.',
       })
-      .min(6, 'One time code must be at least 6 characters long.')
+      .min(6, 'One time code must be at least 6 characters long.'),
   }),
 });
 
@@ -59,6 +59,12 @@ const resetPasswordValidationSchema = z.object({
         invalid_type_error: 'Password must be a string.',
       })
       .min(8, 'Password must be at least 8 characters long.'),
+    otp: z
+      .string({
+        required_error: 'One time code is required.',
+        invalid_type_error: 'One time code must be a string.',
+      })
+      .min(6, 'One time code must be at least 6 characters long.'),
   }),
 });
 

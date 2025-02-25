@@ -9,19 +9,19 @@ const router = Router();
 router.post(
   '/register',
   validateRequest(UserValidation.createUserValidationSchema),
-  AuthController.register
+  AuthController.register,
 );
 
 router.post(
   '/login',
   validateRequest(AuthValidation.loginValidationSchema),
-  AuthController.login
+  AuthController.login,
 );
 
 router.post(
   '/forgot-password',
   validateRequest(AuthValidation.forgotPasswordValidationSchema),
-  AuthController.forgotPassword
+  AuthController.forgotPassword,
 );
 
 router.post('/resend-otp', AuthController.resendOtp);
@@ -29,20 +29,20 @@ router.post('/resend-otp', AuthController.resendOtp);
 router.post(
   '/reset-password',
   validateRequest(AuthValidation.resetPasswordValidationSchema),
-  AuthController.resetPassword
+  AuthController.resetPassword,
 );
 
 router.post(
   '/change-password',
   auth('common'),
   validateRequest(AuthValidation.changePasswordValidationSchema),
-  AuthController.changePassword
-)
+  AuthController.changePassword,
+);
 
 router.post(
   '/verify-email',
   validateRequest(AuthValidation.verifyEmailValidationSchema),
-  AuthController.verifyEmail
+  AuthController.verifyEmail,
 );
 
 router.post('/logout', AuthController.logout);

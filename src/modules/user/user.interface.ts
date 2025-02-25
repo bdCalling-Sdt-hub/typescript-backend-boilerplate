@@ -1,11 +1,11 @@
-import { Model, Types } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
 import { Role } from '../../middlewares/roles';
 import { IMaritalStatus, TGender, TUserStatus } from './user.constant';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 
 export type TProfileImage = {
   imageUrl: string;
-  file: Record<string, any>;
+  // file: Record<string, any>;
 };
 
 export type TPhotoGallery = {
@@ -15,37 +15,25 @@ export type TPhotoGallery = {
 
 export type TUser = {
   _id: Types.ObjectId;
-  fullName: string;
+  // fullName: string;
+  fname: string;
+  lname: string;
   email: string;
   password: string;
   profileImage?: TProfileImage;
   photoGallery?: TPhotoGallery[];
-  status: TUserStatus;
+  // status: TUserStatus;
   location: {
     latitude: number;
     longitude: number;
   };
   gender: TGender;
-  dateOfBirth: Date;
-  age: number;
-  continent: string;
-  country: string;
-  state: string;
   city: string;
   address: string;
-  ethnicity: string;
-  denomination: string;
-  education: string;
-  maritalStatus: IMaritalStatus;
-  hobby: string;
-  occupation: string;
-  interests: string[];
-  aboutMe: string;
+  aboutMe?: string;
   role: Role;
   isEmailVerified: boolean;
-  isOnline: boolean;
   isDeleted: boolean;
-  isBlocked: boolean;
   lastPasswordChange: Date;
   isResetPassword: boolean;
   failedLoginAttempts: number;
@@ -57,7 +45,7 @@ export type TUser = {
 export interface UserModal extends Model<TUser> {
   paginate: (
     filter: object,
-    options: PaginateOptions
+    options: PaginateOptions,
   ) => Promise<PaginateResult<TUser>>;
   isExistUserById(id: string): Promise<Partial<TUser> | null>;
   isExistUserByEmail(email: string): Promise<Partial<TUser> | null>;
